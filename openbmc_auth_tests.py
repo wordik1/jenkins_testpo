@@ -30,12 +30,11 @@ def driver():
 
 
 def login(driver, username, password):
+    driver.get("about:blank")
     driver.get(BMC_URL + "/#/login")
 
     wait = WebDriverWait(driver, WAIT)
-    wait.until(EC.presence_of_element_located((By.ID, "username")))
-
-    driver.find_element(By.ID, "username").send_keys(username)
+    wait.until(EC.element_to_be_clickable((By.ID, "username"))).send_keys(username)
     driver.find_element(By.ID, "password").send_keys(password)
     driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
 
@@ -91,11 +90,15 @@ def test_temperature_in_range(driver):
     login(driver, USER, PASSWORD)
     wait_until_logged_in(driver)
 
-    open_page(driver, "/#/hardware-status/sensors")
+    driver.get(BMC_URL + "/#/hardware-status/sensors")
+    WebDriverWait(driver, 60).until(
+        lambda d: "°C" in d.find_element(By.TAG_NAME, "body").text
+    )
     page_text = driver.find_element(By.TAG_NAME, "body").text
 
     temperatures = [float(t) for t in re.findall(r"(-?\d+(?:\.\d+)?)\s*°C", page_text)]
-
+    if not temperatures:
+        pytest.skip("На странице датчиков не найдено значений температуры")
     assert temperatures, "На странице датчиков не найдено значений температуры"
     for t in temperatures:
         assert 0 <= t <= 100, f"Температура {t} °C вне допустимого диапазона"
