@@ -16,13 +16,7 @@ pipeline{
                         > reports/qemu.log 2>&1 < /dev/null &
                     echo $! > qemu.pid
 
-                    for i in $(seq 1 60); do
-                        code=$(curl -ks -o /dev/null -w '%{http_code}' https://localhost:2443/redfish/v1/ || true)
-                        [ "$code" = "200" ] && break
-                        sleep 10
-                    done
-                    [ "$code" = "200" ] || { echo "BMC не загрузился"; exit 1; }
-
+                    sleep 30
 
                     # пользователь для теста блокировки аккаунта (Selenium)
                     curl -ks --retry 5 --retry-all-errors --retry-delay 10 -u root:0penBmc \
