@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment{
-        IMAGE = "romulus/obmc-phosphor-image-romulus-20250902012112.static.mtd"
+        IMAGE = "./obmc-phosphor-image-romulus-20250902012112.static.mtd"
         PATH = "/opt/venv/bin:${PATH}"
     }
     stages{
