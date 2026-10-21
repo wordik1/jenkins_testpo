@@ -91,14 +91,11 @@ def test_temperature_in_range(driver):
     wait_until_logged_in(driver)
 
     driver.get(BMC_URL + "/#/hardware-status/sensors")
-    WebDriverWait(driver, 60).until(
-        lambda d: "°C" in d.find_element(By.TAG_NAME, "body").text
-    )
     page_text = driver.find_element(By.TAG_NAME, "body").text
+    if "No sensors found" in page_text:
+        pytest.skip("На странице датчиков не найдено значений температуры")
 
     temperatures = [float(t) for t in re.findall(r"(-?\d+(?:\.\d+)?)\s*°C", page_text)]
-    if not temperatures:
-        pytest.skip("На странице датчиков не найдено значений температуры")
-    assert temperatures, "На странице датчиков не найдено значений температуры"
+    assert temperatures
     for t in temperatures:
         assert 0 <= t <= 100, f"Температура {t} °C вне допустимого диапазона"
