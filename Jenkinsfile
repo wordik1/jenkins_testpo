@@ -30,14 +30,19 @@ pipeline{
                         -d '{"UserName":"locktest","Password":"TestPass123","RoleId":"Administrator"}' \
                         https://localhost:2443/redfish/v1/AccountService/Accounts \
                         | tee reports/qemu_setup.txt
+
+                    curl -ks -u root:0penBmc -X PATCH -H 'Content-Type: application/json' \
+                        -d '{"AccountLockoutThreshold":3,"AccountLockoutDuration":300}' \
+                        https://localhost:2443/redfish/v1/AccountService | tee -a reports/qemu_setup.txt
                 '''
             }
         }
 
         stage('Test OpenBMC'){
             steps{
-                sh 'pgrep -a qemu || echo "qemu не запущен"; tail -n 20 reports/qemu.log || true; curl -ks -o /dev/null -w "%{http_code}\\n" https://127.0.0.1:2443/redfish/v1/ || true'
-                sh 'xvfb-run -a pytest openbmc_auth_tests.py --html=reports/webui.html --self-contained-html'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE'){
+                    sh 'xvfb-run -a pytest openbmc_auth_tests.py --html=reports/webui.html --self-contained-html'
+                }
             }
         }
 

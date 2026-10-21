@@ -92,7 +92,7 @@ def test_temperature_in_range(driver):
 
     driver.get(BMC_URL + "/#/hardware-status/sensors")
     page_text = driver.find_element(By.TAG_NAME, "body").text
-    if "No sensors found" in page_text:
+    if "No items available" in page_text:
         pytest.skip("На странице датчиков не найдено значений температуры")
 
     temperatures = [float(t) for t in re.findall(r"(-?\d+(?:\.\d+)?)\s*°C", page_text)]
