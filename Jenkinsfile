@@ -40,9 +40,7 @@ pipeline{
 
         stage('Test OpenBMC'){
             steps{
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE'){
-                    sh 'xvfb-run -a pytest openbmc_auth_tests.py --html=reports/webui.html --self-contained-html'
-                }
+                sh 'xvfb-run -a pytest openbmc_auth_tests.py --html=reports/webui.html --self-contained-html'
             }
         }
 
